@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Musafir Cilik: Selamatkan Perjalanan!</title>
+  <!-- Google Fonts: Fredoka (Mesra Kanak-kanak) & Scheherazade New / Amiri (Tulisan Arab Jelas) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Fredoka:wght@400;600;700&family=Scheherazade+New:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --primary: #FF8A00;
+      --secondary: #00B4D8;
+      --success: #2EC4B6;
+      --accent: #FFD166;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: 'Fredoka', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #38BDF8 0%, #3B82F6 50%, #6366F1 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    /* Gaya Khas Tulisan Arab Supaya Harakat Tidak Bertindan */
+    .arabic-doa {
+      font-family: 'Scheherazade New', 'Amiri', serif;
+      direction: rtl;
+      font-size: clamp(1.65rem, 3.2vw, 2.3rem);
+      line-height: 2.75 !important;
+      letter-spacing: 0.02em;
+      word-spacing: 0.16em;
+      padding: 0.65rem 0.75rem;
+      display: block;
+    }
+
+    .arabic-zikir {
+      font-family: 'Scheherazade New', 'Amiri', serif;
+      direction: rtl;
+      line-height: 2.4 !important;
+      padding: 0.25rem 0.5rem;
+    }
+
+    /* Bingkai Permainan Utama */
+    #game-wrapper {
+      width: 100%;
+      max-width: 1040px;
+      min-height: 100vh;
+      background: #FFFDF7;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    }
+
+    @media (min-width: 768px) {
+      #game-wrapper {
+        min-height: 690px;
+        height: 92vh;
+        max-height: 800px;
+        border-radius: 32px;
+        border: 8px solid #FFD166;
+      }
+    }
+
+    /* Butang Gaya Kartun 3D */
+    .btn-3d {
+      transition: all 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.22);
+      cursor: pointer;
+    }
+    .btn-3d:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 rgba(0, 0, 0, 0.22);
+    }
+    .btn-3d:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.22);
+    }
+    .btn-3d:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* Animasi Kartun */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes carIdle {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(0.5deg); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 209, 102, 0.85); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 14px rgba(255, 209, 102, 0); }
+    }
+    @keyframes pointerBounce {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-7px) scale(1.15); }
+    }
+    @keyframes roadScroll {
+      0% { background-position: 0 0; }
+      100% { background-position: -160px 0; }
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      80% { transform: scale(1.06); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes shakeGentle {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px) rotate(-3deg); }
+      75% { transform: translateX(8px) rotate(3deg); }
+    }
+    @keyframes waveHand {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(22deg); }
+    }
+    @keyframes unlockBurst {
+      0% { transform: scale(0.85); filter: brightness(1.4); }
+      60% { transform: scale(1.08); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    .anim-float { animation: floatSlow 3s ease-in-out infinite; }
+    .anim-car { animation: carIdle 0.6s ease-in-out infinite; }
+    .anim-pulse-glow { animation: pulseGlow 1.6s infinite; }
+    .anim-pointer { animation: pointerBounce 0.9s ease-in-out infinite; display: inline-block; }
+    .anim-pop { animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    .anim-shake { animation: shakeGentle 0.4s ease-in-out; }
+    .anim-wave { transform-origin: bottom center; animation: waveHand 1s ease-in-out infinite; }
+    .anim-unlock { animation: unlockBurst 0.6s ease-out; }
+
+    .badge-earned {
+      opacity: 1 !important;
+      background-color: #FEF08A !important;
+      border-color: #F59E0B !important;
+      transform: scale(1.12);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.7);
+    }
+
+    .road-moving {
+      background-color: #475569;
+      position: relative;
+    }
+    .road-stripes {
+      height: 10px;
+      width: 100%;
+      background-image: repeating-linear-gradient(
+        90deg,
+        #FFD166 0px,
+        #FFD166 45px,
+        transparent 45px,
+        transparent 90px
+      );
+      animation: roadScroll 0.8s linear infinite;
+    }
+
+    .draggable-item {
+      touch-action: none;
+      cursor: grab;
+      transition: transform 0.15s ease;
+    }
+    .draggable-item:active {
+      cursor: grabbing;
+      transform: scale(1.08);
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      animation: confettiFall 3s linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(650px) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+  <!-- BAR ATAS (HUD: PETA, BINTANG, LENCANA & BANTUAN) -->
+  <header id="top-hud" class="hidden bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 border-b-4 border-orange-600/30 z-30 shadow-md">
+    <div class="flex items-center gap-2">
+      <button onclick="Game.goToMap()" title="Peta Pengembaraan" class="btn-3d bg-white text-orange-600 font-bold px-3 py-1.5 rounded-2xl text-sm sm:text-base flex items-center gap-1.5">
+        <span>🗺️</span> <span class="hidden sm:inline">Peta</span>
+      </button>
+      <div class="bg-white/95 px-3 py-1.5 rounded-2xl flex items-center gap-1.5 font-bold text-amber-600 shadow-inner">
+        <span class="text-lg">⭐</span>
+        <span id="hud-stars" class="text-base sm:text-lg">0</span>
+      </div>
+    </div>
+
+    <!-- Bar Lencana Mini -->
+    <div id="hud-badges" class="flex items-center gap-1 sm:gap-1.5 bg-orange-700/25 px-2.5 py-1 rounded-2xl">
+      <span id="badge-1" title="Lencana Persiapan" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/50 border-2 border-white flex items-center justify-center text-sm opacity-50 transition-all">🎒</span>
+      <span id="badge-2" title="Lencana Menaiki Kenderaan" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/50 border-2 border-white flex items-center justify-center text-sm opacity-50 transition-all">🚗</span>
+      <span id="badge-3" title="Lencana Doa & Adab" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/50 border-2 border-white flex items-center justify-center text-sm opacity-50 transition-all">🤲</span>
+      <span id="badge-4" title="Lencana Musafir Prihatin" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/50 border-2 border-white flex items-center justify-center text-sm opacity-50 transition-all">🌟</span>
+      <span id="badge-5" title="Pengembara Beradab" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/50 border-2 border-white flex items-center justify-center text-sm opacity-50 transition-all">🏆</span>
+    </div>
+
+    <!-- Butang Cara Bermain, Ulang Arahan, Petunjuk & Muzik -->
+    <div class="flex items-center gap-1.5">
+      <button onclick="Game.openHowToPlay()" title="Cara Bermain" class="btn-3d bg-sky-600 text-white font-bold px-2.5 sm:px-3 py-1.5 rounded-2xl text-sm flex items-center gap-1">
+        <span>📖</span> <span class="hidden md:inline">Cara Bermain</span>
+      </button>
+      <button onclick="Game.repeatInstruction()" title="Ulang Arahan" class="btn-3d bg-indigo-500 text-white font-bold px-2.5 sm:px-3 py-1.5 rounded-2xl text-sm flex items-center gap-1">
+        <span>🔄</span> <span class="hidden lg:inline">Ulang</span>
+      </button>
+      <button onclick="Game.showHint()" title="Petunjuk" class="btn-3d bg-emerald-500 text-white font-bold px-2.5 sm:px-3 py-1.5 rounded-2xl text-sm flex items-center gap-1">
+        <span>💡</span> <span class="hidden md:inline">Bantu</span>
+      </button>
+      <button onclick="AudioEngine.toggleMute()" id="btn-mute" title="Muzik & Kesan Bunyi" class="btn-3d bg-purple-500 text-white font-bold w-9 h-9 rounded-2xl flex items-center justify-center text-base">
+        🎵
+      </button>
+    </div>
+  </header>
+
+  <!-- PAPARAN ARAHAN SEMASA (JELAS & KONTRAS TINGGI UNTUK MURID TAHAP RENDAH) -->
+  <div id="instruction-banner" class="hidden bg-sky-100 border-b-4 border-sky-400 px-4 py-2.5 flex items-center justify-between gap-3 z-20">
+    <div class="flex items-center gap-3">
+      <div id="inst-icon" class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center text-2xl shrink-0 shadow">🧭</div>
+      <div>
+        <div id="inst-step-badge" class="text-xs font-extrabold uppercase tracking-wider text-sky-800">MISI 1</div>
+        <p id="inst-text" class="text-base sm:text-xl font-bold text-slate-900 leading-snug">Arahan permainan di sini</p>
+      </div>
+    </div>
+    <div class="text-2xl sm:text-3xl anim-pointer shrink-0" title="Ikut arahan ini">👆</div>
+  </div>
+
+  <!-- KAWASAN SKRIN PERMAINAN UTAMA -->
+  <main id="screen-container" class="flex-1 relative overflow-y-auto overflow-x-hidden flex flex-col">
+    <!-- Kandungan dijana oleh JavaScript -->
+  </main>
+
+  <!-- KOTAK MAKLUM BALAS SERTA-MERTA -->
+  <div id="feedback-overlay" class="pointer-events-none fixed inset-x-0 bottom-5 flex justify-center z-50 px-4 transition-all duration-300 opacity-0 translate-y-6">
+    <div id="feedback-box" class="bg-white border-4 border-emerald-400 rounded-3xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-md">
+      <span id="feedback-emoji" class="text-3xl">🌟</span>
+      <p id="feedback-msg" class="font-bold text-slate-800 text-base sm:text-lg">Bagus! Teruskan!</p>
+    </div>
+  </div>
+
+  <!-- MODAL PETUNJUK / BANTUAN -->
+  <div id="hint-modal" class="hidden fixed inset-0 bg-black/55 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white border-4 border-amber-400 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl anim-pop">
+      <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-4xl mx-auto mb-3">💡</div>
+      <h3 class="text-2xl font-bold text-amber-600 mb-2">Petunjuk Pengembara</h3>
+      <p id="hint-text" class="text-lg text-slate-800 font-semibold mb-5 leading-relaxed">Ikut langkah yang ditunjukkan pada skrin.</p>
+      <button onclick="Game.closeHint()" class="btn-3d bg-amber-500 text-white font-bold text-lg px-8 py-3 rounded-2xl w-full">
+        FAHAM! 👍
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL CARA BERMAIN (VISUAL RINGKAS TANPA VOICE) -->
+  <div id="howto-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white border-4 border-sky-400 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl anim-pop max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-center gap-2 mb-2">
+        <span class="text-3xl">📖</span>
+        <h3 class="text-2xl sm:text-3xl font-bold text-sky-700">Cara Bermain</h3>
+      </div>
+      <p class="text-center text-sm sm:text-base font-semibold text-slate-600 mb-4">
+        Ikut 4 langkah mudah ini untuk menyelamatkan perjalanan keluarga:
+      </p>
+
+      <div class="space-y-3 text-left mb-5">
+        <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-3 flex items-center gap-3">
+          <span class="text-3xl shrink-0">🗺️</span>
+          <div>
+            <div class="font-bold text-slate-900">1. Pilih Lokasi Pada Peta</div>
+            <div class="text-sm text-slate-700">Sentuh kad lokasi yang bercahaya untuk memulakan misi mengikut urutan.</div>
+          </div>
+        </div>
+
+        <div class="bg-sky-50 border-2 border-sky-300 rounded-2xl p-3 flex items-center gap-3">
+          <span class="text-3xl shrink-0">👆</span>
+          <div>
+            <div class="font-bold text-slate-900">2. Baca Kotak Arahan Biru di Atas</div>
+            <div class="text-sm text-slate-700">Lihat ikon dan ayat arahan ringkas di bahagian atas skrin pada setiap langkah.</div>
+          </div>
+        </div>
+
+        <div class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-3 flex items-center gap-3">
+          <span class="text-3xl shrink-0">🎒</span>
+          <div>
+            <div class="font-bold text-slate-900">3. Sentuh atau Seret Objek</div>
+            <div class="text-sm text-slate-700">Ketik butang bercahaya, gerakkan watak, atau seret barang ke tempat yang betul.</div>
+          </div>
+        </div>
+
+        <div class="bg-purple-50 border-2 border-purple-300 rounded-2xl p-3 flex items-center gap-3">
+          <span class="text-3xl shrink-0">💡</span>
+          <div>
+            <div class="font-bold text-slate-900">4. Perlukan Bantuan?</div>
+            <div class="text-sm text-slate-700">Tekan butang hijau <strong>Bantu (💡)</strong> di bucu atas untuk melihat petunjuk jawapan.</div>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="Game.closeHowToPlay()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg px-8 py-3.5 rounded-2xl w-full">
+        SAYA SEDIA BERMAIN! 🚀
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * ============================================================================
+ * ENJIN AUDIO (WEB AUDIO API SAHAJA - TIADA VOICE / SPEECH SYNTHESIS)
+ * ============================================================================
+ */
+const AudioEngine = {
+  ctx: null,
+  isMuted: false,
+  bgmInterval: null,
+  bgmStep: 0,
+
+  init() {
+    try {
+      if (!this.ctx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) this.ctx = new AudioContext();
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    } catch (e) {}
+  },
+
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    const btn = document.getElementById('btn-mute');
+    if (btn) btn.textContent = this.isMuted ? '🔇' : '🎵';
+    if (this.isMuted) {
+      this.stopBGM();
+    } else {
+      this.startBGM();
+    }
+  },
+
+  playTone(freq, type = 'sine', duration = 0.2, vol = 0.14, delay = 0) {
+    if (this.isMuted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
+
+      gain.gain.setValueAtTime(vol, this.ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(this.ctx.currentTime + delay);
+      osc.stop(this.ctx.currentTime + delay + duration);
+    } catch (e) {}
+  },
+
+  playClick() {
+    this.playTone(520, 'triangle', 0.1, 0.16);
+  },
+
+  playSuccess() {
+    this.playTone(523.25, 'sine', 0.15, 0.18, 0);
+    this.playTone(659.25, 'sine', 0.15, 0.18, 0.1);
+    this.playTone(783.99, 'sine', 0.25, 0.18, 0.2);
+    this.playTone(1046.5, 'triangle', 0.35, 0.18, 0.3);
+  },
+
+  playGentleOops() {
+    this.playTone(330, 'sine', 0.18, 0.14, 0);
+    this.playTone(280, 'sine', 0.22, 0.14, 0.14);
+  },
+
+  playCarHorn() {
+    this.playTone(440, 'sawtooth', 0.12, 0.09, 0);
+    this.playTone(554, 'sawtooth', 0.18, 0.09, 0.14);
+  },
+
+  playSeatbeltClick() {
+    this.playTone(880, 'square', 0.06, 0.14, 0);
+    this.playTone(1200, 'sine', 0.12, 0.16, 0.06);
+  },
+
+  playDoaChime() {
+    this.playTone(587.33, 'sine', 0.28, 0.12, 0);
+    this.playTone(739.99, 'sine', 0.32, 0.12, 0.15);
+    this.playTone(880.00, 'sine', 0.45, 0.12, 0.3);
+  },
+
+  startBGM() {
+    if (this.isMuted || this.bgmInterval) return;
+    this.init();
+    const notes = [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 392.00];
+    this.bgmInterval = setInterval(() => {
+      if (this.isMuted) return;
+      const note = notes[this.bgmStep % notes.length];
+      this.playTone(note, 'sine', 0.35, 0.03);
+      this.bgmStep++;
+    }, 580);
+  },
+
+  stopBGM() {
+    if (this.bgmInterval) {
+      clearInterval(this.bgmInterval);
+      this.bgmInterval = null;
+    }
+  }
+};
+
+/**
+ * ============================================================================
+ * ILUSTRASI SVG KARTUN COMEL (WATAK & KENDERAAN)
+ * ============================================================================
+ */
+const SVGAssets = {
+  explorer(mood = 'happy') {
+    return `
+      <svg viewBox="0 0 140 160" class="w-28 h-32 sm:w-36 sm:h-40 mx-auto drop-shadow-md">
+        <rect x="48" y="122" width="14" height="24" rx="7" fill="#1E293B"/>
+        <rect x="78" y="122" width="14" height="24" rx="7" fill="#1E293B"/>
+        <rect x="42" y="140" width="22" height="12" rx="6" fill="#EF4444"/>
+        <rect x="76" y="140" width="22" height="12" rx="6" fill="#EF4444"/>
+        <rect x="42" y="74" width="56" height="52" rx="18" fill="#0EA5E9"/>
+        <path d="M50 76 L50 124 M90 76 L90 124" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
+        <g class="anim-wave">
+          <rect x="20" y="65" width="24" height="14" rx="7" transform="rotate(-30 32 72)" fill="#FDBA74"/>
+        </g>
+        <rect x="96" y="80" width="22" height="14" rx="7" transform="rotate(25 100 85)" fill="#FDBA74"/>
+        <circle cx="70" cy="46" r="32" fill="#FDBA74"/>
+        <path d="M40 34 Q70 10 100 34 Z" fill="#1E293B"/>
+        <rect x="38" y="30" width="64" height="9" rx="4" fill="#F59E0B"/>
+        <circle cx="58" cy="46" r="4.5" fill="#1E293B"/>
+        <circle cx="82" cy="46" r="4.5" fill="#1E293B"/>
+        <circle cx="59.5" cy="44.5" r="1.5" fill="#FFF"/>
+        <circle cx="83.5" cy="44.5" r="1.5" fill="#FFF"/>
+        <circle cx="50" cy="54" r="5" fill="#FB7185" opacity="0.5"/>
+        <circle cx="90" cy="54" r="5" fill="#FB7185" opacity="0.5"/>
+        ${mood === 'happy'
+          ? '<path d="M58 56 Q70 68 82 56" stroke="#1E293B" stroke-width="3.5" fill="none" stroke-linecap="round"/>'
+          : '<circle cx="70" cy="59" r="5" fill="#1E293B"/>'}
+      </svg>
+    `;
+  },
+
+  familyCar(doorOpen = false) {
+    return `
+      <svg viewBox="0 0 320 160" class="w-64 sm:w-80 h-auto mx-auto drop-shadow-lg">
+        <ellipse cx="160" cy="144" rx="135" ry="12" fill="rgba(0,0,0,0.18)"/>
+        <path d="M75 75 L105 32 Q115 24 130 24 L205 24 Q220 24 230 35 L255 75 Z" fill="#38BDF8" stroke="#0284C7" stroke-width="4"/>
+        <path d="M108 36 L152 36 L152 70 L88 70 Z" fill="#E0F2FE"/>
+        <path d="M162 36 L215 36 L236 70 L162 70 Z" fill="#E0F2FE"/>
+        <circle cx="195" cy="54" r="12" fill="#FDBA74"/>
+        <path d="M184 48 Q195 36 206 48 Z" fill="#1E293B"/>
+        <rect x="30" y="72" width="265" height="54" rx="22" fill="#0EA5E9" stroke="#0284C7" stroke-width="4"/>
+        <rect x="36" y="94" width="253" height="10" rx="5" fill="#FFD166"/>
+        <rect x="282" y="82" width="14" height="18" rx="6" fill="#FEF08A"/>
+        <rect x="26" y="82" width="12" height="18" rx="5" fill="#F87171"/>
+        <g style="transition: transform 0.5s ease; transform-origin: 155px 95px; transform: ${doorOpen ? 'scaleX(0.35) skewY(-12deg)' : 'none'};">
+          <rect x="92" y="74" width="64" height="48" rx="10" fill="${doorOpen ? '#0284C7' : '#38BDF8'}" stroke="#0369A1" stroke-width="3"/>
+          <rect x="102" y="88" width="14" height="6" rx="3" fill="#FFD166"/>
+        </g>
+        <circle cx="88" cy="126" r="24" fill="#1E293B"/>
+        <circle cx="88" cy="126" r="11" fill="#CBD5E1"/>
+        <circle cx="232" cy="126" r="24" fill="#1E293B"/>
+        <circle cx="232" cy="126" r="11" fill="#CBD5E1"/>
+      </svg>
+    `;
+  }
+};
+
+/**
+ * ============================================================================
+ * ENJIN PERMAINAN UTAMA
+ * ============================================================================
+ */
+const Game = {
+  state: {
+    unlockedLevel: 1,
+    newlyUnlocked: 0,
+    completedLevels: [],
+    stars: 0,
+    badges: [false, false, false, false, false],
+    currentMission: 0,
+    currentInstruction: '',
+    currentHint: ''
+  },
+
+  init() {
+    this.renderStartScreen();
+  },
+
+  setInstruction(stepLabel, text, icon = '🧭', hint = '') {
+    this.state.currentInstruction = text;
+    this.state.currentHint = hint || text;
+    const banner = document.getElementById('instruction-banner');
+    banner.classList.remove('hidden');
+    document.getElementById('inst-step-badge').textContent = stepLabel;
+    document.getElementById('inst-text').textContent = text;
+    document.getElementById('inst-icon').textContent = icon;
+  },
+
+  repeatInstruction() {
+    AudioEngine.playClick();
+    const banner = document.getElementById('instruction-banner');
+    banner.classList.remove('anim-pop');
+    void banner.offsetWidth;
+    banner.classList.add('anim-pop');
+    this.showFeedback('🧭', this.state.currentInstruction, 'info');
+  },
+
+  openHowToPlay() {
+    AudioEngine.playClick();
+    document.getElementById('howto-modal').classList.remove('hidden');
+  },
+
+  closeHowToPlay() {
+    AudioEngine.playClick();
+    document.getElementById('howto-modal').classList.add('hidden');
+  },
+
+  showHint() {
+    AudioEngine.playClick();
+    document.getElementById('hint-text').textContent = this.state.currentHint;
+    document.getElementById('hint-modal').classList.remove('hidden');
+  },
+
+  closeHint() {
+    AudioEngine.playClick();
+    document.getElementById('hint-modal').classList.add('hidden');
+  },
+
+  showFeedback(emoji, msg, type = 'success') {
+    const overlay = document.getElementById('feedback-overlay');
+    const box = document.getElementById('feedback-box');
+    document.getElementById('feedback-emoji').textContent = emoji;
+    document.getElementById('feedback-msg').textContent = msg;
+
+    box.className = 'bg-white border-4 rounded-3xl px-5 py-3 shadow-2xl flex items-center gap-3 max-w-md ';
+    if (type === 'success') box.classList.add('border-emerald-400');
+    else if (type === 'warn') box.classList.add('border-amber-400');
+    else box.classList.add('border-sky-400');
+
+    overlay.classList.remove('opacity-0', 'translate-y-6');
+    clearTimeout(this.fbTimer);
+    this.fbTimer = setTimeout(() => {
+      overlay.classList.add('opacity-0', 'translate-y-6');
+    }, 2600);
+  },
+
+  addRewards(starsEarned, badgeIndex) {
+    this.state.stars += starsEarned;
+    document.getElementById('hud-stars').textContent = this.state.stars;
+    if (badgeIndex >= 1 && badgeIndex <= 5) {
+      this.state.badges[badgeIndex - 1] = true;
+      const bEl = document.getElementById(`badge-${badgeIndex}`);
+      if (bEl) {
+        bEl.classList.remove('opacity-50');
+        bEl.classList.add('badge-earned');
+      }
+    }
+  },
+
+  completeMission(missionNum, starsEarned = 3) {
+    AudioEngine.playSuccess();
+    if (!this.state.completedLevels.includes(missionNum)) {
+      this.state.completedLevels.push(missionNum);
+      this.addRewards(starsEarned, missionNum);
+    }
+    if (this.state.unlockedLevel <= missionNum && missionNum < 5) {
+      this.state.unlockedLevel = missionNum + 1;
+      this.state.newlyUnlocked = missionNum + 1;
+    }
+
+    const container = document.getElementById('screen-container');
+    const badgeNames = [
+      '',
+      'Lencana Persiapan Bijak',
+      'Lencana Tertib Menaiki Kenderaan',
+      'Lencana Pengembara Berdoa',
+      'Lencana Musafir Prihatin',
+      'Lencana Pengembara Beradab'
+    ];
+    const badgeIcons = ['', '🎒', '🚗', '🤲', '🌟', '🏆'];
+
+    container.innerHTML = `
+      <div class="flex-1 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-amber-50 to-emerald-50 anim-pop">
+        <div class="w-28 h-28 rounded-full bg-amber-300 border-4 border-amber-500 flex items-center justify-center text-6xl shadow-xl mb-4 anim-float">
+          ${badgeIcons[missionNum]}
+        </div>
+        <div class="bg-emerald-500 text-white font-bold px-4 py-1 rounded-full text-sm mb-2">
+          MISI ${missionNum} SELESAI!
+        </div>
+        <h2 class="text-2xl sm:text-4xl font-bold text-slate-800 mb-2">Syabas, Pengembara Cilik!</h2>
+        <p class="text-lg font-semibold text-amber-700 mb-4">Kamu menerima: <strong>${badgeNames[missionNum]}</strong></p>
+        <div class="flex gap-2 text-4xl mb-6">
+          <span>⭐</span><span>⭐</span><span>⭐</span>
+        </div>
+        <button onclick="${missionNum === 5 ? 'Game.startMission(5)' : 'Game.goToMap()'}" class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xl px-8 py-4 rounded-3xl">
+          ${missionNum === 5 ? 'LIHAT SAMBUTAN AKHIR 🎉' : 'TERUSKAN KE PETA 🗺️'}
+        </button>
+      </div>
+    `;
+  },
+
+  /* --------------------------------------------------------------------------
+   * 3. PAPARAN PERMULAAN (START SCREEN)
+   * -------------------------------------------------------------------------- */
+  renderStartScreen() {
+    document.getElementById('top-hud').classList.add('hidden');
+    document.getElementById('instruction-banner').classList.add('hidden');
+
+    const container = document.getElementById('screen-container');
+    container.innerHTML = `
+      <div class="flex-1 flex flex-col items-center justify-between p-5 sm:p-8 bg-gradient-to-b from-sky-300 via-sky-100 to-emerald-200 relative overflow-hidden">
+        <div class="absolute top-6 left-6 text-5xl opacity-80 anim-float">☁️</div>
+        <div class="absolute top-12 right-10 text-6xl opacity-80 anim-float" style="animation-delay: 1s;">☁️</div>
+
+        <div class="text-center z-10 mt-2">
+          <span class="inline-block bg-amber-400 text-amber-950 font-bold px-4 py-1 rounded-full text-xs sm:text-sm border-2 border-amber-600 shadow mb-2">
+            PENDIDIKAN ISLAM TAHUN 5 • BIDANG ADAB
+          </span>
+          <h1 class="text-3xl sm:text-5xl font-bold text-orange-600 drop-shadow-[0_3px_0_rgba(255,255,255,1)] tracking-tight leading-tight">
+            MUSAFIR CILIK:<br><span class="text-sky-700">SELAMATKAN PERJALANAN!</span>
+          </h1>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 my-2 z-10 w-full max-w-3xl">
+          <div class="flex flex-col items-center">
+            ${SVGAssets.explorer('happy')}
+            <div class="bg-white border-4 border-sky-400 rounded-3xl p-3.5 shadow-lg max-w-xs text-center relative -mt-2">
+              <p class="font-bold text-slate-800 text-sm sm:text-base">
+                "Assalamualaikum, pengembara cilik! Jom bantu keluarga kita memulakan perjalanan dengan adab yang betul!"
+              </p>
+            </div>
+          </div>
+
+          <div class="anim-car mt-2 sm:mt-8">
+            ${SVGAssets.familyCar(false)}
+          </div>
+        </div>
+
+        <div class="z-10 mb-2 flex flex-col sm:flex-row items-center gap-3 w-full max-w-xl">
+          <button onclick="Game.openHowToPlay()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg sm:text-xl px-6 py-4 rounded-3xl w-full sm:w-auto border-4 border-white flex items-center justify-center gap-2 shrink-0">
+            <span>📖</span> CARA BERMAIN
+          </button>
+          <button onclick="Game.startAdventure()" class="btn-3d anim-pulse-glow bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-xl sm:text-2xl px-8 py-4 rounded-3xl w-full border-4 border-white flex items-center justify-center gap-3">
+            <span>🚀</span> MULA PENGEMBARAAN
+          </button>
+        </div>
+      </div>
+    `;
+  },
+
+  startAdventure() {
+    AudioEngine.init();
+    AudioEngine.playClick();
+    AudioEngine.playCarHorn();
+    AudioEngine.startBGM();
+    document.getElementById('top-hud').classList.remove('hidden');
+    this.goToMap();
+  },
+
+  /* --------------------------------------------------------------------------
+   * 4. PETA PENGEMBARAAN (5 LOKASI BERURUTAN)
+   * -------------------------------------------------------------------------- */
+  goToMap() {
+    AudioEngine.playClick();
+    this.setInstruction(
+      'PETA PERJALANAN',
+      'Sentuh lokasi yang bercahaya untuk memulakan misi!',
+      '🗺️',
+      'Pilih lokasi bernombor yang sudah terbuka pada peta.'
+    );
+
+    const locations = [
+      { id: 1, title: 'Rumahku Syurgaku', sub: 'Misi 1: Persiapan Pengembara', icon: '🏠', color: 'from-rose-400 to-orange-400' },
+      { id: 2, title: 'Tempat Letak Kereta', sub: 'Misi 2: Jom Naik Kereta!', icon: '🚗', color: 'from-sky-400 to-blue-500' },
+      { id: 3, title: 'Dalam Perjalanan', sub: 'Misi 3: Pengembara Beradab', icon: '🛣️', color: 'from-teal-400 to-emerald-500' },
+      { id: 4, title: 'Kawasan Rehat', sub: 'Misi 4: Cabaran Sepanjang Jalan', icon: '⛰️', color: 'from-amber-400 to-orange-500' },
+      { id: 5, title: 'Destinasi Impian', sub: 'Misi 5: Selamat Sampai!', icon: '🏖️', color: 'from-purple-400 to-pink-500' }
+    ];
+
+    const container = document.getElementById('screen-container');
+    container.innerHTML = `
+      <div class="flex-1 bg-gradient-to-b from-emerald-100 via-lime-50 to-amber-100 p-4 sm:p-6 flex flex-col items-center justify-center relative">
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-4 text-center">🗺️ Peta Pengembaraan Keluarga</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-4xl">
+          ${locations.map(loc => {
+            const isUnlocked = loc.id <= this.state.unlockedLevel;
+            const isCompleted = this.state.completedLevels.includes(loc.id);
+            const isCurrent = loc.id === this.state.unlockedLevel && !isCompleted;
+            const isNewlyUnlocked = loc.id === this.state.newlyUnlocked;
+
+            return `
+              <button
+                onclick="${isUnlocked ? `Game.startMission(${loc.id})` : `Game.lockedAlert()`}"
+                class="btn-3d relative rounded-3xl p-4 text-left border-4 transition-all flex items-center gap-4
+                  ${isUnlocked
+                    ? `bg-gradient-to-br ${loc.color} text-white border-white ${isCurrent ? 'anim-pulse-glow ring-4 ring-amber-300' : ''} ${isNewlyUnlocked ? 'anim-unlock' : ''}`
+                    : 'bg-slate-200 text-slate-500 border-slate-300 opacity-80'}"
+              >
+                <div class="w-16 h-16 rounded-2xl bg-white/95 flex items-center justify-center text-4xl shadow shrink-0">
+                  ${isUnlocked ? loc.icon : '🔒'}
+                </div>
+                <div class="flex-1">
+                  <div class="text-xs font-bold uppercase tracking-wider opacity-95">${loc.sub}</div>
+                  <div class="text-lg sm:text-xl font-bold leading-tight">${loc.title}</div>
+                  <div class="mt-1.5 inline-block text-xs font-bold px-2.5 py-0.5 rounded-full ${isCompleted ? 'bg-emerald-700 text-white' : isUnlocked ? 'bg-white text-slate-800' : 'bg-slate-300 text-slate-600'}">
+                    ${isCompleted ? '✅ Selesai (⭐⭐⭐)' : isUnlocked ? '▶️ Mula Sekarang' : '🔒 Terkunci'}
+                  </div>
+                </div>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+    this.state.newlyUnlocked = 0;
+  },
+
+  lockedAlert() {
+    AudioEngine.playGentleOops();
+    this.showFeedback('🔒', 'Hampir betul! Selesaikan misi sebelumnya dahulu ya.', 'warn');
+  },
+
+  startMission(num) {
+    AudioEngine.playClick();
+    this.state.currentMission = num;
+    if (num === 1) Mission1.init();
+    else if (num === 2) Mission2.init();
+    else if (num === 3) Mission3.init();
+    else if (num === 4) Mission4.init();
+    else if (num === 5) Mission5.init();
+  }
+};
+
+/**
+ * ============================================================================
+ * MISI 1: PERSIAPAN PENGEMBARA (SERET & LEPAS / KLIK KE DALAM BEG)
+ * ============================================================================
+ */
+const Mission1 = {
+  items: [
+    { id: 'clothes', name: 'Beg Pakaian', icon: '👕', valid: true, msg: 'Betul! Baju bersih perlu untuk perjalanan.' },
+    { id: 'water', name: 'Botol Air', icon: '💧', valid: true, msg: 'Bagus! Air penting supaya tidak dahaga.' },
+    { id: 'shoes', name: 'Kasut Selesa', icon: '👟', valid: true, msg: 'Bijak! Kasut sesuai memudahkan perjalanan.' },
+    { id: 'sejadah', name: 'Sejadah Mini', icon: '🕌', valid: true, msg: 'Alhamdulillah! Mudah solat semasa musafir.' },
+    { id: 'doa', name: 'Buku Doa', icon: '📖', valid: true, msg: 'Hebat! Sentiasa berdoa sepanjang musafir.' },
+    { id: 'tv', name: 'TV Besar', icon: '📺', valid: false, msg: 'Hampir betul! TV besar terlalu berat untuk dibawa.' },
+    { id: 'pot', name: 'Pasu Bunga', icon: '🪴', valid: false, msg: 'Cuba sekali lagi! Pasu bunga boleh pecah dalam kereta.' },
+    { id: 'bike', name: 'Basikal', icon: '🚲', valid: false, msg: 'Cuba sekali lagi! Basikal tidak muat masuk dalam beg.' }
+  ],
+  packed: [],
+
+  init() {
+    this.packed = [];
+    Game.setInstruction(
+      'MISI 1: RUMAHKU SYURGAKU',
+      'Masukkan 5 barang keperluan perjalanan ke dalam beg!',
+      '🎒',
+      'Seret (atau ketik) Beg Pakaian, Botol Air, Kasut, Sejadah Mini dan Buku Doa ke dalam beg.'
+    );
+    this.render();
+  },
+
+  render() {
+    const container = document.getElementById('screen-container');
+    container.innerHTML = `
+      <div class="flex-1 bg-gradient-to-b from-amber-50 to-orange-100 p-4 sm:p-5 flex flex-col justify-between">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-5 my-auto">
+          <div class="text-center">
+            ${SVGAssets.explorer('happy')}
+            <span class="bg-white px-3 py-1 rounded-full text-sm font-bold text-orange-700 shadow">Pengembara Cilik</span>
+          </div>
+
+          <!-- Zon Lepas Beg -->
+          <div id="bag-dropzone"
+               ondragover="event.preventDefault()"
+               ondrop="Mission1.handleDrop(event)"
+               class="w-72 sm:w-80 min-h-[185px] bg-amber-300/60 border-4 border-dashed border-orange-500 rounded-3xl p-4 flex flex-col items-center justify-center text-center transition-all shadow-inner">
+            <div class="text-5xl sm:text-6xl mb-1">🧳</div>
+            <div class="font-bold text-orange-900 text-lg">Beg Perjalanan (${this.packed.length}/5)</div>
+            <p class="text-xs text-orange-800 mb-2">Seret atau ketik barang di bawah</p>
+            <div class="flex flex-wrap justify-center gap-2">
+              ${this.packed.map(id => {
+                const it = this.items.find(x => x.id === id);
+                return `<span class="bg-white px-2.5 py-1 rounded-xl text-2xl shadow anim-pop">${it.icon}</span>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Pilihan 8 Barang -->
+        <div class="bg-white/95 rounded-3xl p-3 sm:p-4 border-4 border-amber-300 shadow-lg">
+          <div class="grid grid-cols-4 gap-2 sm:gap-3">
+            ${this.items.map(item => {
+              const isDone = this.packed.includes(item.id);
+              return `
+                <div
+                  id="item-${item.id}"
+                  draggable="${!isDone}"
+                  ondragstart="Mission1.handleDragStart(event, '${item.id}')"
+                  onclick="Mission1.selectItem('${item.id}')"
+                  class="draggable-item btn-3d rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center border-2
+                    ${isDone ? 'bg-emerald-100 border-emerald-400 opacity-35 pointer-events-none' : 'bg-sky-50 border-sky-300 hover:bg-sky-100'}"
+                >
+                  <span class="text-3xl sm:text-4xl mb-1">${item.icon}</span>
+                  <span class="text-xs sm:text-sm font-bold text-slate-800 text-center leading-tight">${item.name}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  handleDragStart(e, id) {
+    e.dataTransfer.setData('text/plain', id);
+  },
+
+  handleDrop(e) {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain');
+    if (id) this.selectItem(id);
+  },
+
+  selectItem(id) {
+    if (this.packed.includes(id)) return;
+    const item = this.items.find(i => i.id === id);
+    if (!item) return;
+
+    if (item.valid) {
+      AudioEngine.playSuccess();
+      this.packed.push(id);
+      Game.showFeedback('✅', item.msg, 'success');
+      this.render();
+      if (this.packed.length === 5) {
+        setTimeout(() => Game.completeMission(1, 3), 900);
+      }
+    } else {
+      AudioEngine.playGentleOops();
+      const card = document.getElementById(`item-${id}`);
+      if (card) {
+        card.classList.remove('anim-shake');
+        void card.offsetWidth;
+        card.classList.add('anim-shake');
+      }
+      Game.showFeedback('🤔', item.msg, 'warn');
+    }
+  }
+};
+
+/**
+ * ============================================================================
+ * MISI 2: JOM NAIK KERETA! (4 LANGKAH SIMULASI LANGSUNG)
+ * ============================================================================
+ */
+const Mission2 = {
+  step: 1, // 1: Buka pintu, 2: Kaki kanan, 3: Bismillah 3x, 4: Tempat duduk & tali pinggang
+  bismillahCount: 0,
+  seatChosen: false,
+
+  init() {
+    this.step = 1;
+    this.bismillahCount = 0;
+    this.seatChosen = false;
+    this.updateStep();
+  },
+
+  updateStep() {
+    const container = document.getElementById('screen-container');
+
+    if (this.step === 1) {
+      Game.setInstruction(
+        'MISI 2 (LANGKAH 1/4)',
+        'Sentuh pintu kereta untuk membukanya!',
+        '🚪',
+        'Tekan pada kereta atau butang Buka Pintu Kereta.'
+      );
+      container.innerHTML = `
+        <div class="flex-1 bg-gradient-to-b from-sky-200 to-slate-200 p-6 flex flex-col items-center justify-center text-center">
+          <div onclick="Mission2.openDoor()" class="cursor-pointer transform hover:scale-105 transition">
+            ${SVGAssets.familyCar(false)}
+          </div>
+          <button onclick="Mission2.openDoor()" class="btn-3d anim-pulse-glow mt-6 bg-sky-500 text-white font-bold text-xl px-8 py-4 rounded-3xl">
+            🖐️ BUKA PINTU KERETA
+          </button>
+        </div>
+      `;
+    } else if (this.step === 2) {
+      Game.setInstruction(
+        'MISI 2 (LANGKAH 2/4)',
+        'Pilih kaki kanan untuk melangkah masuk ke dalam kereta!',
+        '👣',
+        'Kita disunatkan melangkah masuk dengan Kaki Kanan.'
+      );
+      container.innerHTML = `
+        <div class="flex-1 bg-gradient-to-b from-sky-200 to-slate-200 p-6 flex flex-col items-center justify-center text-center">
+          ${SVGAssets.familyCar(true)}
+          <p class="font-bold text-lg text-slate-800 mt-3 mb-4">Kaki manakah yang kita dahulukan?</p>
+          <div class="flex gap-4 sm:gap-8">
+            <button onclick="Mission2.chooseFoot('left')" class="btn-3d bg-white border-4 border-slate-300 rounded-3xl p-5 flex flex-col items-center w-36 sm:w-44">
+              <span class="text-5xl mb-2">🦶</span>
+              <span class="font-bold text-lg text-slate-700">Kaki Kiri</span>
+            </button>
+            <button onclick="Mission2.chooseFoot('right')" class="btn-3d bg-emerald-50 border-4 border-emerald-400 rounded-3xl p-5 flex flex-col items-center w-36 sm:w-44">
+              <span class="text-5xl mb-2" style="transform: scaleX(-1); display:inline-block;">🦶</span>
+              <span class="font-bold text-lg text-emerald-800">Kaki Kanan</span>
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (this.step === 3) {
+      Game.setInstruction(
+        'MISI 2 (LANGKAH 3/4)',
+        'Tekan butang BISMILLAH sebanyak 3 kali!',
+        '📿',
+        'Ketik butang hijau BISMILLAH tiga kali berturut-turut.'
+      );
+      container.innerHTML = `
+        <div class="flex-1 bg-gradient-to-b from-amber-50 to-sky-100 p-6 flex flex-col items-center justify-center text-center">
+          <div class="bg-white border-4 border-emerald-400 rounded-3xl p-6 max-w-md w-full shadow-xl">
+            <div class="arabic-zikir text-4xl sm:text-5xl text-emerald-700 font-bold mb-2">بِسْمِ اللَّهِ</div>
+            <p class="text-slate-700 font-bold mb-4">Bacaan Bismillah: <span class="text-2xl text-emerald-600">${this.bismillahCount} / 3</span></p>
+            <div class="flex justify-center gap-3 mb-6">
+              ${[1, 2, 3].map(n => `
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold border-4
+                  ${this.bismillahCount >= n ? 'bg-emerald-500 text-white border-emerald-600 anim-pop' : 'bg-slate-100 text-slate-400 border-slate-300'}">
+                  ${this.bismillahCount >= n ? '✓' : n}
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="Mission2.tapBismillah()" class="btn-3d anim-pulse-glow bg-emerald-500 text-white font-bold text-xl px-8 py-4 rounded-3xl w-full">
+              🤲 BACA BISMILLAH
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (this.step === 4) {
+      Game.setInstruction(
+        'MISI 2 (LANGKAH 4/4)',
+        this.seatChosen
+          ? 'Klik klip tali pinggang keledar sehingga berbunyi KLIK!'
+          : 'Pilih tempat duduk penumpang di bahagian belakang!',
+        '🔒',
+        this.seatChosen
+          ? 'Tekan butang kuning Pasang Tali Pinggang Keledar.'
+          : 'Sentuh Kerusi Penumpang (Belakang) untuk duduk dengan selamat.'
+      );
+      container.innerHTML = `
+        <div class="flex-1 bg-gradient-to-b from-slate-700 to-slate-800 p-5 flex flex-col items-center justify-center text-center text-white">
+          <div class="bg-slate-600 border-4 border-slate-500 rounded-3xl p-5 max-w-lg w-full shadow-2xl">
+            <h3 class="text-xl font-bold mb-3">Susunan Tempat Duduk Kereta</h3>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="bg-slate-700/80 border-2 border-slate-500 rounded-2xl p-3 opacity-75">
+                <div class="text-3xl">👨🏻</div>
+                <div class="font-bold text-sm">Kerusi Pemandu (Ayah)</div>
+              </div>
+              <button onclick="Mission2.chooseSeat()" class="btn-3d rounded-2xl p-3 border-4 ${this.seatChosen ? 'bg-emerald-600 border-emerald-300' : 'bg-sky-600 border-amber-300 anim-pulse-glow'}">
+                <div class="text-3xl">${this.seatChosen ? '👦🏻💺' : '💺'}</div>
+                <div class="font-bold text-sm">Kerusi Penumpang (Kamu)</div>
+              </button>
+            </div>
+
+            ${this.seatChosen ? `
+              <div class="bg-slate-800/80 rounded-2xl p-4 border-2 border-amber-400 anim-pop">
+                <div class="flex items-center justify-center gap-3 mb-3">
+                  <span class="bg-amber-400 text-slate-900 font-bold px-3 py-2 rounded-xl text-sm">🔗 Kepala Tali</span>
+                  <span class="text-xl">➡️</span>
+                  <span class="bg-rose-500 text-white font-bold px-3 py-2 rounded-xl text-sm border border-white">🟥 Kunci Merah</span>
+                </div>
+                <button onclick="Mission2.buckleSeatbelt()" class="btn-3d anim-pulse-glow bg-amber-400 text-slate-900 font-bold text-lg sm:text-xl px-6 py-3.5 rounded-2xl w-full">
+                  🔒 KLIK PASANG TALI PINGGANG
+                </button>
+              </div>
+            ` : '<p class="text-sm text-amber-200 font-semibold">Sentuh Kerusi Penumpang untuk duduk dahulu.</p>'}
+          </div>
+        </div>
+      `;
+    }
+  },
+
+  openDoor() {
+    AudioEngine.playClick();
+    Game.showFeedback('🚪', 'Pintu kereta dibuka! Jom melangkah masuk.', 'success');
+    this.step = 2;
+    this.updateStep();
+  },
+
+  chooseFoot(foot) {
+    if (foot === 'right') {
+      AudioEngine.playSuccess();
+      Game.showFeedback('🦶', 'Betul! Sunat melangkah dengan kaki kanan.', 'success');
+      this.step = 3;
+      this.updateStep();
+    } else {
+      AudioEngine.playGentleOops();
+      Game.showFeedback('💡', 'Hampir betul! Cuba sekali lagi dengan Kaki Kanan.', 'warn');
+    }
+  },
+
+  tapBismillah() {
+    this.bismillahCount++;
+    AudioEngine.playSuccess();
+    if (this.bismillahCount >= 3) {
+      Game.showFeedback('🌟', 'Alhamdulillah! Tiga kali Bismillah dibaca.', 'success');
+      this.step = 4;
+      setTimeout(() => this.updateStep(), 800);
+    } else {
+      this.updateStep();
+    }
+  },
+
+  chooseSeat() {
+    if (this.seatChosen) return;
+    AudioEngine.playClick();
+    this.seatChosen = true;
+    Game.showFeedback('💺', 'Bagus! Sekarang pasang tali pinggang keledar.', 'success');
+    this.updateStep();
+  },
+
+  buckleSeatbelt() {
+    AudioEngine.playSeatbeltClick();
+    Game.showFeedback('🔒', 'KLIK! Tali pinggang keledar terpasang kemas!', 'success');
+    setTimeout(() => Game.completeMission(2, 3), 1000);
+  }
+};
+
+/**
+ * ============================================================================
+ * MISI 3: PENGEMBARA BERADAB (DOA, ALHAMDULILLAH & DUDUK TERTIB)
+ * ============================================================================
+ */
+const Mission3 = {
+  doaRead: false,
+  alhamdulillahSaid: false,
+  adikCalmed: false,
+  showDoaModal: false,
+  doaHighlightStep: 1,
+
+  init() {
+    this.doaRead = false;
+    this.alhamdulillahSaid = false;
+    this.adikCalmed = false;
+    this.showDoaModal = false;
+    this.doaHighlightStep = 1;
+    this.updateInstruction();
+    this.render();
+  },
+
+  updateInstruction() {
+    if (!this.doaRead) {
+      Game.setInstruction(
+        'MISI 3: DALAM PERJALANAN',
+        'Sentuh ikon DOA untuk membaca Doa Menaiki Kenderaan!',
+        '🤲',
+        'Tekan butang "Baca Doa" yang bercahaya di bawah.'
+      );
+    } else if (!this.alhamdulillahSaid) {
+      Game.setInstruction(
+        'MISI 3: DALAM PERJALANAN',
+        'Sentuh ikon ALHAMDULILLAH tanda bersyukur!',
+        '✨',
+        'Tekan butang "Ucap Alhamdulillah" selepas membaca doa.'
+      );
+    } else if (!this.adikCalmed) {
+      Game.setInstruction(
+        'MISI 3: DALAM PERJALANAN',
+        'Sentuh watak Adik supaya duduk tertib dan tidak mengganggu Ayah memandu!',
+        '🤫',
+        'Tekan pada kad Adik atau butang "Tenangkan Adik" di bawah.'
+      );
+    }
+  },
+
+  render() {
+    const container = document.getElementById('screen-container');
+    container.innerHTML = `
+      <div class="flex-1 bg-gradient-to-b from-sky-400 to-emerald-300 p-4 flex flex-col justify-between relative overflow-hidden">
+        <!-- Suasana Dalam Kereta -->
+        <div class="bg-sky-200 border-8 border-slate-700 rounded-3xl p-4 shadow-inner relative overflow-hidden">
+          <div class="flex justify-between items-center text-3xl mb-2">
+            <span class="anim-float">⛰️ 🌲</span>
+            <span class="bg-white/90 text-slate-800 text-xs sm:text-sm font-bold px-3 py-1 rounded-full">🚗 Kereta Sedang Bergerak</span>
+            <span class="anim-float">🌲 ☁️</span>
+          </div>
+          <div class="road-moving h-6 rounded-xl flex items-center px-2">
+            <div class="road-stripes"></div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 mt-4 text-center">
+            <div class="bg-white/95 rounded-2xl p-3 border-2 border-sky-400">
+              <div class="text-4xl">👨🏻</div>
+              <div class="font-bold text-sm text-slate-800">Ayah (Pemandu)</div>
+              <div class="text-xs text-emerald-600 font-bold">Fokus Memandu</div>
+            </div>
+            <div class="bg-white/95 rounded-2xl p-3 border-2 border-pink-400">
+              <div class="text-4xl">🧕🏻</div>
+              <div class="font-bold text-sm text-slate-800">Ibu</div>
+              <div class="text-xs text-emerald-600 font-bold">Duduk Tertib</div>
+            </div>
+            <div onclick="Mission3.calmAdik()" class="cursor-pointer bg-white/95 rounded-2xl p-3 border-4 ${this.doaRead && this.alhamdulillahSaid && !this.adikCalmed ? 'border-rose-500 anim-pulse-glow' : 'border-amber-300'}">
+              <div class="text-4xl">${this.adikCalmed ? '👦🏻📖' : '👦🏻📢'}</div>
+              <div class="font-bold text-sm text-slate-800">Adik</div>
+              <div class="text-xs font-bold ${this.adikCalmed ? 'text-emerald-600' : 'text-rose-600'}">
+                ${this.adikCalmed ? 'Duduk Tertib' : 'Bising & Bergerak!'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Butang Tindakan Adab -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+          <button onclick="Mission3.openDoa()" class="btn-3d p-4 rounded-3xl font-bold text-lg flex items-center justify-center gap-2 border-4
+            ${this.doaRead ? 'bg-emerald-100 text-emerald-800 border-emerald-400' : 'bg-amber-400 text-slate-900 border-white anim-pulse-glow'}">
+            <span class="text-3xl">🤲</span>
+            <span>${this.doaRead ? '✅ Doa Dibaca' : 'Baca Doa'}</span>
+          </button>
+
+          <button onclick="Mission3.sayAlhamdulillah()" class="btn-3d p-4 rounded-3xl font-bold text-lg flex items-center justify-center gap-2 border-4
+            ${this.alhamdulillahSaid ? 'bg-emerald-100 text-emerald-800 border-emerald-400' : this.doaRead ? 'bg-sky-500 text-white border-white anim-pulse-glow' : 'bg-slate-200 text-slate-500 border-slate-300'}">
+            <span class="text-3xl">✨</span>
+            <span>${this.alhamdulillahSaid ? '✅ Alhamdulillah' : 'Ucap Alhamdulillah'}</span>
+          </button>
+
+          <button onclick="Mission3.calmAdik()" class="btn-3d p-4 rounded-3xl font-bold text-lg flex items-center justify-center gap-2 border-4
+            ${this.adikCalmed ? 'bg-emerald-100 text-emerald-800 border-emerald-400' : (this.doaRead && this.alhamdulillahSaid) ? 'bg-rose-500 text-white border-white anim-pulse-glow' : 'bg-slate-200 text-slate-500 border-slate-300'}">
+            <span class="text-3xl">📖</span>
+            <span>${this.adikCalmed ? '✅ Duduk Tertib' : 'Tenangkan Adik'}</span>
+          </button>
+        </div>
+
+        <!-- MODAL DOA MENAIKI KENDERAAN (SURAH AL-ZUKHRUF: 13-14) -->
+        ${this.showDoaModal ? `
+          <div class="fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-3 sm:p-4">
+            <div class="bg-white border-4 border-emerald-500 rounded-3xl max-w-2xl w-full p-5 sm:p-7 text-center shadow-2xl anim-pop max-h-[92vh] overflow-y-auto">
+              <span class="bg-emerald-100 text-emerald-800 text-xs sm:text-sm font-bold px-3.5 py-1 rounded-full">Surah al-Zukhruf: Ayat 13 - 14</span>
+              <h3 class="text-xl sm:text-2xl font-bold text-slate-800 mt-2 mb-3">Doa Menaiki Kenderaan</h3>
+
+              <!-- Blok Arab Dengan Line-Height Luas & Pemisahan Baris -->
+              <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl px-4 py-5 sm:px-6 sm:py-6 mb-4 space-y-4">
+                <div class="arabic-doa font-bold rounded-2xl transition-all ${this.doaHighlightStep === 1 ? 'bg-amber-200/90 text-emerald-950 ring-2 ring-amber-400' : 'text-slate-900'}">
+                  سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَـٰذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ
+                </div>
+                <div class="arabic-doa font-bold rounded-2xl transition-all ${this.doaHighlightStep === 2 ? 'bg-amber-200/90 text-emerald-950 ring-2 ring-amber-400' : 'text-slate-900'}">
+                  وَإِنَّا إِلَىٰ رَبِّنَا لَمُنقَلِبُونَ
+                </div>
+              </div>
+
+              <p class="text-xs sm:text-sm italic text-slate-600 mb-2 leading-relaxed">
+                "Subhaanallazii sakh-khara lanaa haazaa wamaa kunnaa lahuu muqriniin, wa innaa ilaa rabbinaa lamunqalibuun."
+              </p>
+              <p class="text-sm sm:text-base font-semibold text-emerald-800 mb-5 leading-relaxed">
+                Maksudnya: "Maha Suci Tuhan yang telah memudahkan kenderaan ini untuk kami, sedang kami sebelum itu tidak terdaya menguasainya. Dan sesungguhnya kepada Tuhan kamilah, kami akan kembali."
+              </p>
+
+              <div class="flex flex-wrap justify-center gap-3">
+                <button onclick="Mission3.stepReadDoa()" class="btn-3d bg-sky-500 hover:bg-sky-600 text-white font-bold px-5 py-3.5 rounded-2xl flex items-center gap-2 text-base">
+                  <span>🔄</span> ${this.doaHighlightStep === 1 ? 'Baca & Hayati Baris 2' : 'Ulang Bacaan Baris 1'}
+                </button>
+                <button onclick="Mission3.finishDoa()" class="btn-3d anim-pulse-glow bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3.5 rounded-2xl flex items-center gap-2 text-base">
+                  <span>✅</span> Selesai Baca Doa
+                </button>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  },
+
+  openDoa() {
+    AudioEngine.playDoaChime();
+    this.doaHighlightStep = 1;
+    this.showDoaModal = true;
+    this.render();
+  },
+
+  stepReadDoa() {
+    AudioEngine.playDoaChime();
+    this.doaHighlightStep = this.doaHighlightStep === 1 ? 2 : 1;
+    this.render();
+  },
+
+  finishDoa() {
+    AudioEngine.playSuccess();
+    this.showDoaModal = false;
+    this.doaRead = true;
+    Game.showFeedback('🤲', 'Alhamdulillah! Doa menaiki kenderaan telah dibaca.', 'success');
+    this.updateInstruction();
+    this.render();
+  },
+
+  sayAlhamdulillah() {
+    if (!this.doaRead) {
+      AudioEngine.playGentleOops();
+      Game.showFeedback('💡', 'Hampir betul! Baca Doa Menaiki Kenderaan dahulu ya.', 'warn');
+      return;
+    }
+    AudioEngine.playSuccess();
+    this.alhamdulillahSaid = true;
+    Game.showFeedback('✨', 'Bagus! Sentiasa bersyukur kepada Allah.', 'success');
+    this.updateInstruction();
+    this.render();
+  },
+
+  calmAdik() {
+    if (!this.doaRead || !this.alhamdulillahSaid) {
+      AudioEngine.playGentleOops();
+      Game.showFeedback('💡', 'Baca doa dan ucap Alhamdulillah dahulu ya!', 'warn');
+      return;
+    }
+    if (this.adikCalmed) return;
+    AudioEngine.playSuccess();
+    this.adikCalmed = true;
+    Game.showFeedback('📖', 'Syabas! Adik duduk tertib dan Ayah dapat memandu dengan selamat.', 'success');
+    this.render();
+    setTimeout(() => Game.completeMission(3, 3), 1100);
+  }
+};
+
+/**
+ * ============================================================================
+ * MISI 4: CABARAN SEPANJANG JALAN (4 MINI-CABARAN BERBEZA)
+ * ============================================================================
+ */
+const Mission4 = {
+  heroPos: 15,
+  datukHelped: false,
+  trashItems: [
+    { id: 't1', icon: '🧴', name: 'Botol Kosong', cleaned: false },
+    { id: 't2', icon: '🍬', name: 'Pembalut Makanan', cleaned: false },
+    { id: 't3', icon: '🥫', name: 'Tin Kosong', cleaned: false },
+    { id: 't4', icon: '🧻', name: 'Tisu Terpakai', cleaned: false }
+  ],
+  queueStep: 0,
+  zikirDone: 0,
+
+  init() {
+    this.initChallengeA();
+  },
+
+  /* --- CABARAN A: BANTU DATUK --- */
+  initChallengeA() {
+    this.heroPos = 15;
+    this.datukHelped = false;
+    Game.setInstruction(
+      'MISI 4A: BANTU DATUK',
+      'Gerakkan watak ke arah Datuk untuk memimpinnya naik ke kenderaan!',
+      '👴🏻',
+      'Tekan butang Kanan (➡️) sehingga menghampiri Datuk, kemudian beri tempat duduk.'
+    );
+    this.renderChallengeA();
+  },
+
+  renderChallengeA() {
+    const container = document.getElementById('screen-container');
+    container.innerHTML = `
+      <div class="flex-1 bg-gradient-to-b from-amber-100 to-emerald-200 p-4 sm:p-6 flex flex-col justify-between">
+        <div class="bg-white/85 rounded-2xl px-4 py-2 text-center font-bold text-amber-800 text-sm">
+          Cabaran 1 daripada 4: Menghormati & Membantu Warga Emas
+        </div>
+
+        <div class="relative h-56 bg-sky-100 border-4 border-sky-400 rounded-3xl overflow-hidden flex items-end p-4 shadow-inner">
+          <div class="absolute right-3 bottom-4 bg-amber-400 border-4 border-amber-600 rounded-2xl p-3 text-center shadow-lg">
+            <div class="text-4xl">🚐</div>
+            <button onclick="Mission4.offerSeat()" class="btn-3d mt-1 text-xs font-bold px-2.5 py-1.5 rounded-xl ${this.datukHelped ? 'bg-emerald-500 text-white anim-pulse-glow' : 'bg-slate-200 text-slate-500'}">
+              💺 Beri Tempat Duduk
+            </button>
+          </div>
+
+          <div style="left: ${this.heroPos}%;" class="absolute bottom-4 transition-all duration-300 text-center">
+            <div class="text-5xl">👦🏻</div>
+            <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">Kamu</span>
+          </div>
+
+          <div style="left: ${this.datukHelped ? (this.heroPos + 8) : 52}%;" class="absolute bottom-4 transition-all duration-300 text-center">
+            <div class="text-5xl">${this.datukHelped ? '👴🏻🤝' : '👴🏻🦯'}</div>
+            <span class="bg-amber-700 text-white text-xs font-bold px-2 py-0.5 rounded-full">Datuk</span>
+          </div>
+        </div>
+
+        <div class="flex justify-center gap-4">
+          <button onclick="Mission4.moveHero(-12)" class="btn-3d bg-white border-4 border-sky-400 text-sky-700 font-bold text-xl sm:text-2xl px-7 py-3 rounded-2xl">
+            ⬅️ Kiri
+          </button>
+          <button onclick="Mission4.moveHero(12)" class="btn-3d bg-sky-500 text-white font-bold text-xl sm:text-2xl px-7 py-3 rounded-2xl">
+            Kanan ➡️
+          </button>
+        </div>
+      </div>
+    `;
+  },
+
+  moveHero(delta) {
+    AudioEngine.playClick();
+    this.heroPos = Math.max(8, Math.min(62, this.heroPos + delta));
+    if (!this.datukHelped && this.heroPos >= 44) {
+      this.datukHelped = true;
+      AudioEngine.playSuccess();
+      Game.showFeedback('🤝', 'Bagus! Kamu memimpin Datuk. Sekarang sentuh "Beri Tempat Duduk"!', 'success');
+      Game.setInstruction(
+        'MISI 4A: BANTU DATUK',
+        'Sentuh ikon "Beri Tempat Duduk" untuk Datuk!',
+        '💺',
+        'Tekan butang hijau "Beri Tempat Duduk" pada kenderaan.'
+      );
+    }
+    this.renderChallengeA();
+  },
+
+  offerSeat() {
+    if (!this.datukHelped) {
+      AudioEngine.playGentleOops();
+      Game.showFeedback('💡', 'Hampir betul! Gerakkan watak ke arah Datuk dahulu.', 'warn');
+      return;
+    }
+    AudioEngine.playSuccess();
+    Game.showFeedback('🌟', 'Alhamdulillah! Datuk gembira mendapat tempat duduk.', 'success');
+    setTimeout(() => this.initChallengeB(), 1000);
+  },
+
+  /* --- CABARAN B: KEBERSIHAN KENDERAAN --- */
+  initChallengeB() {
+    this.trashItems.forEach(t => t.cleaned = false);
+    Game.setInstruction(
+      'MISI 4B: KEBERSIHAN KENDERAAN',
+      'Kutip semua sampah dan masukkan ke dalam tong sampah!',
+      '🗑️',
+      'Seret atau ketik setiap sampah untuk membuangnya ke dalam tong sampah.'
+    );
+    this.renderChallengeB();
+  },
+
+  renderChallengeB() {
+    const remaining = this.trashItems.filter(t => !t.cleaned).length;
+    const container = document.getElementById('screen-container');
+    container.innerHTML = `
+      <div class="flex-1 bg-gradient-to-b from-teal-50 to-emerald-100 p-4 sm:p-6 flex flex-col justify-between">
+        <div class="bg-white/85 rounded-2xl px-4 py-2 text-center font-bold text-teal-800 text-sm">
+          Cabaran 2 daripada 4: Menjaga Kebersihan Kenderaan (Baki sampah: ${remaining})
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-around gap-6 my-auto">
+          <div class="grid grid-cols-2 gap-4 bg-white/95 p-5 rounded-3xl border-4 border-teal-300 shadow-lg">
+            ${this.trashItems.map(item => `
+              <button
+                draggable="${!item.cleaned}"
+                ondragstart="event.dataTransfer.setData('text/plain', '${item.id}')"
+                onclick="Mission4.cleanTrash('${item.id}')"
+                class="btn-3d p-4 rounded-2xl border-2 flex flex-col items-center
+                  ${item.cleaned ? 'bg-emerald-50 border-emerald-300 opacity-35 pointer-events-none' : 'bg-amber-50 border-amber-300'}"
+              >
+                <span class="text-4xl mb-1">${item.icon}</span>
+                <span class="text-xs font-bold text-slate-700">${item.name}</span>
+              </button>
+            `).join('')}
+          </div>
+
+          <div
+            ondragover="event.preventDefault()"
+            ondrop="Mission4.dropTrash(event)"
+            class="w-48 h-48 bg-emerald-500 border-4 border-dashed border-white rounded-3xl flex flex-col items-center justify-center text-white shadow-xl p-4 text-center">
+            <span class="text-6xl mb-2">🗑️</span>
+            <span class="font-bold text-lg">Tong Sampah</span>
+            <span class="text-xs opacity-95">Ketik atau seret sampah ke sini</span>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  dropTrash(e) {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain');
+    if (id) this.cleanTrash(id);
+  },
+
+  cleanTrash(id) {
+    const item = this.trashItems.find(t => t.id === id);
+    if (!item || item.cleaned) return;
+    item.cleaned = true;
+    AudioEngine.playSuccess();
+    Game.showFeedback('✨', 'Bersih! Kenderaan sentiasa kemas dan selesa.', 'success');
+    this.renderChallengeB();
+
+    if (this.trashItems.every(t => t.cleaned)) {
+      setTimeout(() => this.initChallengeC(), 900);
+    }
+  },
+
+  /* --- CABARAN C: JANGAN BEREBUT! --- */
+  initChallengeC() {
+    this.queueStep = 0;
+    Game.setInstruction(
+      'MISI 4C: JANGAN BEREBUT!',
+      'Beratur secara tertib di belakang garisan tanpa menolak penumpang lain!',
+      '🚶🏻',
+      'Tekan butang hijau "Beratur Dengan Sabar" sehingga tiba giliran kamu.'
+    );
+    this.renderChallengeC();
+  },
+
+  renderChallengeC() {
+    const container = document.getElementById('screen-container');
+    container.innerHTML = `
+      <div class="flex-1 bg-gradient-to-b from-sky-100 to-indigo-100 p-4 sm:p-6 flex flex-col justify-between">
+        <div class="bg-white/85 rounded-2xl px-4 py-2 text-center font-bold text-indigo-800 text-sm">
+          Cabaran 3 daripada 4: Beratur & Tidak Berebut
+        </div>
+
+        <div class="bg-white rounded-3xl p-5 border-4 border-indigo-300 shadow-lg my-auto">
+          <div class="flex items-center justify-between gap-2 overflow-x-auto py-4">
+            <div class="bg-amber-400 border-4 border-amber-600 rounded-2xl p-3 text-center shrink-0">
+              <div class="text-4xl">🚌</div>
+              <div class="text-xs font-bold">Pintu Bas</div>
+            </div>
+
+            <div class="h-16 w-1.5 bg-rose-500 rounded-full shrink-0" title="Garisan Beratur"></div>
+
+            <div class="flex-1 flex items-center justify-around">
+              <div class="text-center transition-all ${this.queueStep >= 1 ? 'opacity-25 scale-75' : ''}">
+                <div class="text-4xl">🧕🏻</div>
+                <div class="text-xs font-bold bg-slate-100 px-2 rounded">Giliran 1</div>
+              </div>
+              <div class="text-center transition-all ${this.queueStep >= 2 ? 'opacity-25 scale-75' : ''}">
+                <div class="text-4xl">👨🏽</div>
+                <div class="text-xs font-bold bg-slate-100 px-2 rounded">Giliran 2</div>
+              </div>
+              <div class="text-center bg-emerald-100 border-2 border-emerald-500 p-2 rounded-2xl">
+                <div class="text-4xl">👦🏻</div>
+                <div class="text-xs font-bold text-emerald-800">Kamu (Giliran 3)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button onclick="Mission4.pushQueue()" class="btn-3d bg-rose-100 border-4 border-rose-400 text-rose-800 font-bold text-lg py-4 px-5 rounded-3xl">
+            🏃‍♂️ Tolak & Potong Barisan
+          </button>
+          <button onclick="Mission4.waitCalmly()" class="btn-3d anim-pulse-glow bg-emerald-500 text-white font-bold text-lg py-4 px-5 rounded-3xl">
+            😊 Beratur Dengan Sabar (${this.queueStep}/2)
+          </button>
+        </div>
+      </div>
+    `;
+  },
+
+  pushQueue() {
+    AudioEngine.playGentleOops();
+    Game.showFeedback('🛑', 'Hampir betul! Cuba sekali lagi dengan beratur tertib.', 'warn');
+  },
+
+  waitCalmly() {
+    this.queueStep++;
+    AudioEngine.playSuccess();
+    if (this.queueStep === 1) {
+      Game.showFeedback('👍', 'Bagus! Penumpang pertama sudah naik. Tunggu satu giliran lagi.', 'success');
+      this.renderChallengeC();
+    } else {
+      Game.showFeedback('🌟', 'Tahniah! Kini giliran kamu naik dengan selamat dan beradab.', 'success');
+      setTimeout(() => this.initChallengeD(), 950);
+    }
+  },
+
+  /* --- CABARAN D: ZIKIR SEPANJANG PERJALANAN --- */
+  initChallengeD() {
+    this.zikirDone = 0;
+    this.updateHillInstruction();
+    this.renderChallengeD();
+  },
+
+  updateHillInstruction() {
+    const isClimbing = this.zikirDone % 2 === 0;
+    if (isClimbing) {
+      Game.setInstruction(
+        'MISI 4D: ZIKIR MENDAKI BUKIT',
+        'Kereta sedang MENDAKI BUKIT! Tekan zikir ALLAHU AKBAR!',
+        '⛰️',
+        'Apabila mendaki bukit, kita sunat bertakbir: Allahu Akbar.'
+      );
+    } else {
+      Game.setInstruction(
+        'MISI 4D: ZIKIR MENURUNI BUKIT',
+        'Kereta sedang MENURUNI BUKIT! Tekan zikir SUBHANALLAH!',
+        '📉',
+        'Apabila menuruni bukit, kita sunat bertasbih: Subhanallah.'
+      );
+    }
+  },
+
+  renderChallengeD() {
+    const isClimbing = this.zikirDone % 2 === 0;
+    const container = document.getElementById('screen-container');
+    container.innerHTML = `
+      <div class="flex-1 bg-gradient-to-b from-sky-300 to-emerald-200 p-4 sm:p-6 flex flex-col justify-between">
+        <div class="bg-white/85 rounded-2xl px-4 py-2 text-center font-bold text-emerald-900 text-sm">
+          Cabaran 4 daripada 4: Berzikir Sepanjang Jalan (${this.zikirDone}/4)
+        </div>
+
+        <div class="relative h-56 bg-sky-100 border-4 border-sky-400 rounded-3xl overflow-hidden flex items-center justify-center shadow-inner">
+          <div class="absolute top-3 left-4 bg-white px-3 py-1 rounded-full font-bold text-sm shadow ${isClimbing ? 'text-orange-600' : 'text-sky-600'}">
+            ${isClimbing ? '⬆️ Sedang Mendaki Bukit' : '⬇️ Sedang Menuruni Bukit'}
+          </div>
+
+          <div class="w-full h-24 bg-emerald-600 absolute bottom-0 transition-transform duration-500"
+               style="transform: ${isClimbing ? 'rotate(-14deg) scale(1.25)' : 'rotate(14deg) scale(1.25)'};">
+            <div class="w-full h-4 bg-slate-700"></div>
+          </div>
+
+          <div class="z-10 transition-transform duration-500"
+               style="transform: ${isClimbing ? 'rotate(-16deg) translateY(-10px)' : 'rotate(16deg) translateY(-10px)'};">
+            <div class="text-7xl">🚙</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <button onclick="Mission4.tapZikir('allahuakbar')"
+            class="btn-3d p-4 rounded-3xl border-4 text-center transition-all
+              ${isClimbing ? 'bg-orange-500 text-white border-white anim-pulse-glow' : 'bg-white text-slate-700 border-slate-300'}">
+            <div class="arabic-zikir text-2xl sm:text-3xl font-bold">اللَّهُ أَكْبَرُ</div>
+            <div class="font-bold text-base sm:text-lg">ALLAHU AKBAR</div>
+            <div class="text-xs opacity-90">Mendaki Bukit</div>
+          </button>
+
+          <button onclick="Mission4.tapZikir('subhanallah')"
+            class="btn-3d p-4 rounded-3xl border-4 text-center transition-all
+              ${!isClimbing ? 'bg-sky-500 text-white border-white anim-pulse-glow' : 'bg-white text-slate-700 border-slate-300'}">
+            <div class="arabic-zikir text-2xl sm:text-3xl font-bold">سُبْحَانَ اللَّهِ</div>
+            <div class="font-bold text-base sm:text-lg">SUBHANALLAH</div>
+            <div class="text-xs opacity-90">Menuruni Bukit</div>
+          </button>
+        </div>
+      </div>
+    `;
+  },
+
+  tapZikir(type) {
+    const isClimbing = this.zikirDone % 2 === 0;
+    if ((isClimbing && type === 'allahuakbar') || (!isClimbing && type === 'subhanallah')) {
+      AudioEngine.playSuccess();
+      this.zikirDone++;
+      Game.showFeedback('🌟', type === 'allahuakbar' ? 'Allahu Akbar! Hebat!' : 'Subhanallah! Tepat sekali!', 'success');
+
+      if (this.zikirDone >= 4) {
+        setTimeout(() => Game.completeMission(4, 3), 900);
+      } else {
+        this.updateHillInstruction();
+        this.renderChallengeD();
+      }
+    } else {
+      AudioEngine.playGentleOops();
+      Game.showFeedback('💡', isClimbing ? 'Hampir betul! Mendaki bukit sebut Allahu Akbar.' : 'Hampir betul! Menuruni bukit sebut Subhanallah.', 'warn');
+    }
+  }
+};
+
+/**
+ * ============================================================================
+ * MISI 5: SELAMAT SAMPAI! (DESTINASI IMPIAN)
+ * ============================================================================
+ */
+const Mission5 = {
+  init() {
+    AudioEngine.playSuccess();
+    if (!Game.state.completedLevels.includes(5)) {
+      Game.state.completedLevels.push(5);
+      Game.addRewards(3, 5);
+    }
+
+    Game.setInstruction(
+      'MISI 5: DESTINASI IMPIAN',
+      'Tahniah! Keluarga selamat sampai ke destinasi dengan mengamalkan adab yang mulia!',
+      '🏆',
+      'Kamu telah menamatkan semua misi. Tekan Main Semula atau Kembali ke Menu.'
+    );
+
+    const container = document.getElementById('screen-container');
+    container.innerHTML = `
+      <div id="celebration-bg" class="flex-1 bg-gradient-to-b from-sky-300 via-amber-100 to-emerald-200 p-4 sm:p-6 flex flex-col items-center justify-between text-center relative overflow-y-auto">
+        <div class="anim-pop mt-1">
+          <div class="inline-flex items-center gap-2 bg-amber-400 text-amber-950 font-bold px-4 py-1 rounded-full text-sm border-2 border-white shadow mb-2">
+            <span>🏆</span> LENCANA PENGEMBARA BERADAB DIPEROLEH!
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-bold text-emerald-800">SELAMAT SAMPAI!</h2>
+          <p class="text-sm sm:text-base font-bold text-slate-700 max-w-xl mx-auto mt-1">
+            "Tahniah, pengembara cilik! Kamu berjaya membantu keluarga mengamalkan adab menaiki kenderaan!"
+          </p>
+        </div>
+
+        <div class="bg-white/95 border-4 border-emerald-400 rounded-3xl p-4 my-3 max-w-2xl w-full shadow-xl">
+          <div class="flex justify-center items-center gap-2 sm:gap-4 text-4xl sm:text-5xl mb-2 anim-float">
+            <span>👴🏻</span><span>👨🏻</span><span>🧕🏻</span><span>👦🏻</span><span>👧🏻</span><span>🚙</span>
+          </div>
+          <div class="text-amber-600 font-bold text-lg mb-3">
+            Jumlah Bintang: ⭐ ${Game.state.stars} Bintang
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+            <div class="bg-sky-50 p-2 rounded-2xl border border-sky-200">
+              <div class="text-2xl">🧳</div>
+              <div class="text-xs font-bold text-slate-700">Sedia Keperluan</div>
+            </div>
+            <div class="bg-sky-50 p-2 rounded-2xl border border-sky-200">
+              <div class="text-2xl">🦶</div>
+              <div class="text-xs font-bold text-slate-700">Kaki Kanan & Bismillah</div>
+            </div>
+            <div class="bg-sky-50 p-2 rounded-2xl border border-sky-200">
+              <div class="text-2xl">🤲</div>
+              <div class="text-xs font-bold text-slate-700">Baca Doa & Syukur</div>
+            </div>
+            <div class="bg-sky-50 p-2 rounded-2xl border border-sky-200">
+              <div class="text-2xl">💺</div>
+              <div class="text-xs font-bold text-slate-700">Hormati & Jaga Bersih</div>
+            </div>
+            <div class="bg-sky-50 p-2 rounded-2xl border border-sky-200 col-span-2 sm:col-span-1">
+              <div class="text-2xl">📿</div>
+              <div class="text-xs font-bold text-slate-700">Berzikir di Jalan</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 w-full max-w-lg mb-2">
+          <button onclick="Mission5.restartAll()" class="btn-3d bg-orange-500 text-white font-bold text-lg py-3.5 px-6 rounded-3xl flex-1">
+            🔄 MAIN SEMULA
+          </button>
+          <button onclick="Game.renderStartScreen()" class="btn-3d bg-sky-600 text-white font-bold text-lg py-3.5 px-6 rounded-3xl flex-1">
+            🏠 KEMBALI KE MENU
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.launchConfetti();
+  },
+
+  launchConfetti() {
+    const bg = document.getElementById('celebration-bg');
+    if (!bg) return;
+    const colors = ['#FF595E', '#FFCA3A', '#8AC926', '#1982C4', '#6A4C93'];
+    for (let i = 0; i < 32; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.backgroundColor = colors[i % colors.length];
+      piece.style.animationDelay = (Math.random() * 1.2) + 's';
+      bg.appendChild(piece);
+    }
+  },
+
+  restartAll() {
+    AudioEngine.playClick();
+    Game.state.unlockedLevel = 1;
+    Game.state.newlyUnlocked = 0;
+    Game.state.completedLevels = [];
+    Game.state.stars = 0;
+    Game.state.badges = [false, false, false, false, false];
+    document.getElementById('hud-stars').textContent = '0';
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById(`badge-${i}`);
+      if (el) {
+        el.classList.add('opacity-50');
+        el.classList.remove('badge-earned');
+      }
+    }
+    Game.goToMap();
+  }
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  Game.init();
+});
+</script>
+</body>
+</html>
